@@ -1,0 +1,96 @@
+{#
+/**
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @since         2.0.0
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ */
+#}
+{% set fields = Bake.filterFields(fields, schema, modelObject, indexColumns, ['binary', 'text']) %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        {{ pluralHumanName }}
+
+        <div class="pull-right"><?php echo $this->Html->link(__(''), ['action' => 'add'], ['class'=>' fa fa-plus btn btn-success btn-xs']) ?></div>
+    </h1>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="box">
+                <div class="box-header">
+                    <h3 class="box-title"><?php echo __('Lista'); ?></h3>
+
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                {% for field in fields %}
+                                    <th scope="col"><?= $this->Paginator->sort('{{ field }}') ?></th>
+                                {% endfor %}
+                                <th scope="col" class="actions text-center"><?= __('Actions') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach (${{ pluralVar }} as ${{ singularVar }}): ?>
+                        <tr>
+                            {% for field in fields %}
+                                {% set isKey = false %}
+                                {% if associations.BelongsTo %}
+                                    {% for alias, details in associations.BelongsTo if field == details.foreignKey %}
+                                        {% set isKey = true %}
+                                        <td><?= ${{ singularVar }}->has('{{ details.property }}') ? $this->Html->link(${{ singularVar }}->{{ details.property }}->{{ details.displayField }}, ['controller' => '{{ details.controller }}', 'action' => 'view', ${{ singularVar }}->{{ details.property }}->{{ details.primaryKey[0] }}]) : '' ?></td>
+                                    {% endfor %}
+                                {% endif %}
+                                {% if isKey is not same as(true) %}
+                                    {% set columnData = Bake.columnData(field, schema) %}
+                                    {% if columnData.type not in ['integer', 'float', 'decimal', 'biginteger', 'smallinteger', 'tinyinteger'] %}
+                                        <td><?= h(${{ singularVar }}->{{ field }}) ?></td>
+                                    {% else %}
+                                        <td><?= $this->Number->format(${{ singularVar }}->{{ field }}) ?></td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            {% set pk = '$' ~ singularVar ~ '->' ~ primaryKey[0] %}
+                            <td class="actions text-right">
+                                <?= $this->Html->link(__(''), ['action' => 'view', {{ pk|raw }}], ['class'=>' fa fa-eye btn btn-info btn-xs']) ?>
+                                <?= $this->Html->link(__(''), ['action' => 'edit', {{ pk|raw }}], ['class'=>'fa fa-pencil btn btn-warning btn-xs']) ?>
+                                <?= $this->Form->postLink(__(''), ['action' => 'delete', {{ pk|raw }}], ['confirm' => __('Deseja mesmo deletar esse item?'), 'class'=>'fa fa-trash btn btn-danger btn-xs']) ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-4"></div>
+                <div class="col-md-6 col-xs-12">
+                    <div class="paginator">
+                        <ul class="pagination">
+                            <?= $this->Paginator->first(__('first')) ?>
+                            <?= $this->Paginator->prev(__('anterior')) ?>
+                            <?= $this->Paginator->numbers() ?>
+                            <?= $this->Paginator->next(__('próximo')) ?>
+                            <?= $this->Paginator->last(__('last')) ?>
+                        </ul>
+                        <p><?= $this->Paginator->counter(['format' => __('Página {{page}} de {{pages}}, mostrando {{current}} linhas(s) de {{count}} total')]) ?></p>
+                    </div>
+                </div>
+            </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+    </div>
+</section>
